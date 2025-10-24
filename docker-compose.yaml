@@ -35,6 +35,8 @@ services:
     environment:
         SA_PASSWORD: ${MSSQL_SA_PASSWORD}
         ACCEPT_EULA: "Y"
+    networks:
+      - shared-network
   metabase:
     image: metabase/metabase:latest
     container_name: metabase
