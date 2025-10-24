@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CursoSQL PostgresDB",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "metabaseappdb",
+      "Username": "metabaseuser",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpassfile"
+    }
+  }
+}

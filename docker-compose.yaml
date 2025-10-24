@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:17.6
+    container_name: postgres
+    hostname: postgres
+    volumes:
+      - ${PATH_DATA:-./data}/postgres:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${METABASE_DB_NAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - shared-network
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ${PATH_DATA:-./data}/mysql:/var/lib/mysql
+    networks:
+      - shared-network
+  mssql:
+    container_name: mssql
+    image: "mcr.microsoft.com/mssql/server"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ${PATH_DATA:-./data}/mssql:/var/opt/mssql/data        
+    environment:
+        SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+        ACCEPT_EULA: "Y"
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    hostname: metabase
+    volumes:
+      - /dev/urandom:/dev/random:ro
+    ports:
+      - 8082:3000
+    environment:
+      MB_DB_TYPE: ${METABASE_DB_TYPE}
+      MB_DB_DBNAME: ${METABASE_DB_NAME}
+      MB_DB_PORT: ${POSTGRES_PORT}
+      MB_DB_USER: ${POSTGRES_USER}
+      MB_DB_PASS: ${POSTGRES_PASSWORD}
+      MB_DB_HOST: ${POSTGRES_HOST}
+    networks:
+      - shared-network
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ${PATH_DATA:-./data}/pgadmin:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    restart: unless-stopped
+    networks:
+      - shared-network
+  phpmyadmin:
+    image: phpmyadmin:5.2.3-apache
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "6060:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MSSQL_PID: "Developer"
+    networks:
+      - shared-network
+    depends_on:
+      - mysql
+    
+networks:
+  shared-network:
+    driver: bridge
