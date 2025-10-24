@@ -10,6 +10,7 @@ Entorno listo para practicar SQL con PostgreSQL, MySQL y SQL Server, acompañado
 
 - 🐳 Docker Engine 24+ y Docker Compose Plugin.
 - 📁 Acceso para crear carpetas en el directorio del proyecto (volumenes persistentes).
+- 📦 Descargar la base de datos desde el release del repositorio [`lerocha/netflixdb`](https://github.com/lerocha/netflixdb/releases).
 
 ## Configuracion de variables 🔐
 
